@@ -113,18 +113,18 @@
             // GitHub Base Endpoint URL Configuration
             const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/orion-os/os/main/wallpapers/";
 
-            // Updated Registry featuring your specialized dynamic image and video assets
+            // Updated Registry with exact case-sensitive names and extensions
             const githubWallpapers = [
                 { id: 'wall-orion', name: 'Orion Default', file: 'orion.png', type: 'image' },
-                { id: 'wall-king', name: 'King Canvas', file: 'king.png', type: 'image' },
-                { id: 'wall-gojo', name: 'Gojo Motion Arena', file: 'gojo.mp4', type: 'video' },
-                { id: 'wall-fox', name: 'Snow Fox Live', file: 'snow fox.mp4', type: 'video' },
+                { id: 'wall-king', name: 'King Canvas', file: 'king.PNG', type: 'image' },
+                { id: 'wall-gojo', name: 'Gojo Motion Arena', file: 'Gojo.mp4', type: 'video' },
+                { id: 'wall-fox', name: 'Snow Fox Live', file: 'SnowFox.mp4', type: 'video' },
                 { id: 'wall-sukuna', name: 'Sukuna Fire Unleashed', file: 'sukuna-fire.mp4', type: 'video' }
             ];
 
             const [selectedWallpaper, setSelectedWallpaper] = React.useState(githubWallpapers[0]);
 
-            // Track background styles cleanly
+            // Safely encode URLs to handle spaces or special characters correctly
             const activeAssetUrl = `${GITHUB_RAW_BASE}${encodeURIComponent(selectedWallpaper.file)}`;
 
             React.useEffect(() => {
@@ -215,7 +215,7 @@
             return (
                 <div class="relative w-full h-screen text-zinc-100 overflow-hidden select-none bg-[#09090b]">
                     
-                    {/* WALLPAPER ENGINE BACKGROUND PIPELINE RENDERER (IMAGE VS VIDEO DETECTOR) */}
+                    {/* WALLPAPER ENGINE BACKGROUND PIPELINE RENDERER */}
                     <div class="absolute inset-0 w-full h-full z-0 pointer-events-none transition-all duration-700">
                         {selectedWallpaper.type === 'video' ? (
                             <video 
@@ -311,7 +311,7 @@
                                         {/* Content View Frame */}
                                         <div class="flex-1 overflow-y-auto cursor-default">
                                             
-                                            {/* SYSTEM HUB ROUTER CONTENT (MERGED DASHBOARD + SETTINGS ENGINE) */}
+                                            {/* SYSTEM HUB ROUTER CONTENT */}
                                             {activeWindow === 'hub' && (
                                                 <div class="flex h-full min-h-[320px]">
                                                     {/* Side Navigation Panels */}
@@ -356,7 +356,7 @@
                                                                 <div class="grid grid-cols-2 gap-3">
                                                                     {githubWallpapers.map((wp) => {
                                                                         const isCurrent = wp.id === selectedWallpaper.id;
-                                                                        const imgRawUrl = `${GITHUB_RAW_BASE}${encodeURIComponent(wp.file)}`;
+                                                                        const fileRawUrl = `${GITHUB_RAW_BASE}${encodeURIComponent(wp.file)}`;
                                                                         return (
                                                                             <button 
                                                                                 key={wp.id}
@@ -365,9 +365,9 @@
                                                                             >
                                                                                 <div class="h-14 w-full rounded-lg mb-2 bg-zinc-950 border border-zinc-900/60 relative flex items-center justify-center overflow-hidden text-center text-[9px] text-zinc-500 font-mono">
                                                                                     {wp.type === 'video' ? (
-                                                                                        <video src={imgRawUrl} muted class="w-full h-full object-cover opacity-60" />
+                                                                                        <video src={fileRawUrl} muted class="w-full h-full object-cover opacity-60" />
                                                                                     ) : (
-                                                                                        <div style={{ backgroundImage: `url('${imgRawUrl}')` }} class="w-full h-full bg-cover bg-center opacity-60" />
+                                                                                        <div style={{ backgroundImage: `url('${fileRawUrl}')` }} class="w-full h-full bg-cover bg-center opacity-60" />
                                                                                     )}
                                                                                     <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
                                                                                         <span class="bg-zinc-950/90 px-1.5 py-0.5 rounded border border-zinc-800 text-[8px] uppercase tracking-wider text-zinc-400">{wp.type}</span>
@@ -389,8 +389,8 @@
                                                             <div class="space-y-4">
                                                                 <h3 class="text-sm font-bold text-white">System Architectures</h3>
                                                                 <div class="space-y-2 text-xs text-zinc-400">
-                                                                    <div class="flex justify-between py-1.5 border-b border-zinc-900"><span>Build Patch Version</span><span class="font-mono text-zinc-300">v2.4.0-MEDIA_FLOW</span></div>
-                                                                    <div class="flex justify-between py-1.5 border-b border-zinc-900"><span>Media Renderer Pipeline</span><span class="text-zinc-300">HTML5 Hybrid Audio/Video Frame Deck</span></div>
+                                                                    <div class="flex justify-between py-1.5 border-b border-zinc-900"><span>Build Patch Version</span><span class="font-mono text-zinc-300">v2.4.5-STABLE</span></div>
+                                                                    <div class="flex justify-between py-1.5 border-b border-zinc-900"><span>Media Renderer Pipeline</span><span class="text-zinc-300">HTML5 Hybrid Dynamic Frame Deck</span></div>
                                                                     <div class="flex justify-between py-1.5 border-b border-zinc-900"><span>Repository Link Origin</span><span class="font-mono text-cyan-400">orion-os/os/wallpapers/</span></div>
                                                                 </div>
                                                             </div>
@@ -462,7 +462,7 @@
                         <div class="absolute bottom-24 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 w-72 bg-zinc-950/95 border border-zinc-800/80 backdrop-blur-2xl rounded-2xl shadow-2xl z-50 p-4 flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
                             <div class="px-2 pb-3 mb-2 border-b border-zinc-900 flex flex-col">
                                 <span class="text-xs font-semibold text-zinc-200">orionOS System</span>
-                                <span class="text-[10px] text-zinc-500 mt-0.5">Local Workspace Node</span>
+                                <span class="text-[10px] text-zinc-500 mt-0.5">Local Workspace Workspace Node</span>
                             </div>
                             <div class="flex-1 space-y-1">
                                 <div class="text-[9px] font-bold text-zinc-600 px-2 uppercase tracking-wider mb-1">Applications</div>
@@ -477,7 +477,7 @@
                                 })}
                             </div>
                             <div class="mt-4 pt-2 border-t border-zinc-900 flex items-center justify-between px-2 text-[11px] text-zinc-500">
-                                <span class="text-[10px]">v2.4.0-Stable</span>
+                                <span class="text-[10px]">v2.4.5-Stable</span>
                                 <button onClick={() => { setIsStartOpen(false); setIsVisible(false); }} class="flex items-center gap-1.5 hover:text-rose-400 transition-colors cursor-pointer"><PowerIcon /><span>Log Out</span></button>
                             </div>
                         </div>
