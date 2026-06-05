@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>orbitOS Desktop</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.5'><ellipse cx='12' cy='12' rx='9' ry='3' transform='rotate(-30 12 12)' stroke-linecap='round' stroke-linejoin='round'/><circle cx='12' cy='12' r='3.5' fill='white'/><circle cx='5' cy='8' r='1' fill='white'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.5'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='M9 3v18M15 3v18M3 9h18M3 15h18'/></svg>">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -20,7 +20,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // Fixed sizes for Tailwind v4 compatibility (changed w-5.5 to w-6)
+        // Fixed sizes for Tailwind v4 compatibility
         const HubIcon = () => (
             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
         );
@@ -31,20 +31,24 @@
             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
         );
         const PowerIcon = () => (
-            <svg class="w-4 h-4 text-zinc-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77 0"/></svg>
+            <svg class="w-4 h-4 text-zinc-400 group-hover:text-red-400 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77 0"/></svg>
         );
 
-        const OrbitIcon = ({ className = "w-6 h-6" }) => (
+        // System Core Menu Button Replacement (Hub Grid style instead of orbit icon)
+        const SystemMenuIcon = ({ className = "w-6 h-6" }) => (
             <svg 
                 class={`${className} text-white transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.4)] group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]`} 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
                 stroke-width="1.5"
+                stroke-linecap="round" 
+                stroke-linejoin="round"
             >
-                <ellipse cx="12" cy="12" rx="9" ry="3" transform="rotate(-30 12 12)" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="12" cy="12" r="3.5" fill="currentColor" class="text-white transition-colors group-hover:text-cyan-500" />
-                <circle cx="5" cy="8" r="1" fill="currentColor" />
+                <rect width="7" height="7" x="3" y="3" rx="1"/>
+                <rect width="7" height="7" x="14" y="3" rx="1"/>
+                <rect width="7" height="7" x="14" y="14" rx="1"/>
+                <rect width="7" height="7" x="3" y="14" rx="1"/>
             </svg>
         );
 
@@ -211,6 +215,8 @@
             const [isAnimating, setIsAnimating] = React.useState(false);
             const [isStartOpen, setIsStartOpen] = React.useState(false);
             const [windowPos, setWindowPos] = React.useState({ x: 160, y: 96 });
+            
+            const [isShuttingDown, setIsShuttingDown] = React.useState(false);
 
             React.useEffect(() => {
                 if (activeWindow) {
@@ -281,18 +287,15 @@
                 if (isAnimating) return;
                 if (explicitTab) setHubTab(explicitTab);
 
-                // If clicking the shortcut while window is active and open -> minimize it
                 if (activeWindow === appId && isVisible) {
                     setIsAnimating(true);
                     setIsVisible(false);
                     setTimeout(() => setIsAnimating(false), 300);
                 } else if (activeWindow === appId && !isVisible) {
-                    // If it was minimized, bring it back up!
                     setIsAnimating(true);
                     setIsVisible(true);
                     setTimeout(() => setIsAnimating(false), 300);
                 } else {
-                    // Switching to a totally different app
                     setIsAnimating(true);
                     if (isVisible) {
                         setIsVisible(false);
@@ -311,6 +314,24 @@
                 }
                 setIsStartOpen(false);
             };
+
+            const triggerShutdown = () => {
+                setIsStartOpen(false);
+                setIsShuttingDown(true);
+                
+                setTimeout(() => {
+                    setIsShuttingDown(false);
+                }, 4500);
+            };
+
+            if (isShuttingDown) {
+                return (
+                    <div class="fixed inset-0 w-screen h-screen bg-zinc-950 flex flex-col justify-center items-center z-[99999] transition-all font-sans">
+                        <div class="w-8 h-8 border-2 border-zinc-700 border-t-cyan-400 rounded-full animate-spin mb-4" />
+                        <h2 class="text-sm font-semibold tracking-wider text-zinc-300 animate-pulse">orbitOS is shutting down...</h2>
+                    </div>
+                );
+            }
 
             return (
                 <div class="relative w-full h-screen text-zinc-100 overflow-hidden select-none bg-[#09090b]">
@@ -343,8 +364,8 @@
                     {/* TOP BAR */}
                     <header class="absolute top-0 left-0 right-0 h-10 z-50 flex items-center justify-between px-5 bg-zinc-950/40 border-b border-zinc-800/20 backdrop-blur-md text-xs font-medium text-zinc-400">
                         <div class="flex items-center gap-4">
-                            <div class="flex items-center text-white cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setIsStartOpen(!isStartOpen)}>
-                                <OrbitIcon className="w-5 h-5" />
+                            <div class="flex items-center text-white cursor-pointer hover:opacity-80 transition-opacity" onClick={(e) => { e.stopPropagation(); setIsStartOpen(!isStartOpen); }}>
+                                <SystemMenuIcon className="w-4 h-4" />
                             </div>
                             <span class="text-zinc-800">|</span>
                             <span class="hover:text-zinc-200 cursor-pointer transition-colors">File</span>
@@ -357,20 +378,43 @@
                         </div>
                     </header>
 
-                    {/* START MENU MENU (DROPDOWN FROM ORBIT ICON) */}
+                    {/* START MENU DROP-DOWN */}
                     {isStartOpen && (
-                        <div class="absolute top-11 left-4 w-48 bg-zinc-950/90 border border-zinc-800 backdrop-blur-xl rounded-xl p-2 z-50 shadow-2xl flex flex-col gap-0.5">
-                            <div class="text-[9px] font-bold text-zinc-500 px-3 py-1 uppercase tracking-wider">Applications</div>
-                            {apps.map(app => (
+                        <div 
+                            class="absolute top-11 left-4 w-64 bg-zinc-950/95 border border-zinc-800/80 backdrop-blur-2xl rounded-xl z-50 shadow-2xl flex flex-col overflow-hidden transition-all animate-in fade-in slide-in-from-top-2 duration-150"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Pinned Applications Content Zone */}
+                            <div class="p-3 flex-1 flex flex-col gap-0.5 min-h-[160px]">
+                                <div class="text-[9px] font-bold text-zinc-500 px-3 py-1 uppercase tracking-wider">Applications</div>
+                                {apps.map(app => (
+                                    <button 
+                                        key={app.id}
+                                        onClick={() => handleAppClick(app.id)}
+                                        class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-zinc-300 hover:bg-zinc-800/60 hover:text-white flex items-center gap-2.5 transition-colors cursor-pointer group"
+                                    >
+                                        <div class="scale-75 text-zinc-400 group-hover:text-cyan-400 transition-colors"><app.icon /></div>
+                                        {app.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Integrated Task Footer */}
+                            <div class="h-12 bg-zinc-900/40 border-t border-zinc-800/50 px-4 flex items-center justify-between shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-zinc-700/60 border border-zinc-600/40" />
+                                    <span class="text-[11px] font-medium text-zinc-400">User Account</span>
+                                </div>
+                                
+                                {/* Power Toggle Control */}
                                 <button 
-                                    key={app.id}
-                                    onClick={() => handleAppClick(app.id)}
-                                    class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2 transition-colors cursor-pointer"
+                                    onClick={triggerShutdown}
+                                    class="group p-2 rounded-lg hover:bg-zinc-800/80 transition-colors cursor-pointer"
+                                    title="Shut Down System"
                                 >
-                                    <div class="scale-75 text-zinc-400"><app.icon /></div>
-                                    {app.label}
+                                    <PowerIcon />
                                 </button>
-                            ))}
+                            </div>
                         </div>
                     )}
 
@@ -409,7 +453,7 @@
                                     <div 
                                         style={
                                             isMaximized 
-                                                ? { position: 'fixed', left: '16px', top: '56px', width: 'calc(100vw - 32px)', height: 'calc(100vh - 152px)' } 
+                                                ? { position: 'fixed', left: '16px', top: '56px', width: 'calc(100vw - 32px)', height: 'calc(100vh - 102px)' } 
                                                 : { width: 'calc(100vw - 220px)', height: 'calc(100vh - 240px)', minWidth: '540px', minHeight: '400px' }
                                         }
                                         class={`bg-zinc-950/92 border border-zinc-800/80 backdrop-blur-xl rounded-xl shadow-2xl flex flex-col overflow-hidden ease-in-out origin-center
@@ -475,28 +519,14 @@
                                                                 <div class="grid grid-cols-2 gap-3">
                                                                     {githubWallpapers.map((wp) => {
                                                                         const isCurrent = wp.id === selectedWallpaper.id;
-                                                                        const fileRawUrl = `${GITHUB_RAW_BASE}${encodeURIComponent(wp.file)}`;
                                                                         return (
-                                                                            <button 
+                                                                            <button
                                                                                 key={wp.id}
                                                                                 onClick={() => setSelectedWallpaper(wp)}
-                                                                                class={`p-2.5 rounded-xl text-left border relative overflow-hidden bg-zinc-900/20 group cursor-pointer transition-all ${isCurrent ? 'border-cyan-400 bg-zinc-900/60 shadow-lg' : 'border-zinc-800/80 hover:border-zinc-700'}`}
+                                                                                class={`p-3 rounded-lg border text-left cursor-pointer transition-all flex flex-col justify-between h-20 ${isCurrent ? 'bg-zinc-800/60 border-cyan-500/50 shadow-lg shadow-cyan-950/20' : 'bg-zinc-900/30 border-zinc-800/50 hover:border-zinc-700/80'}`}
                                                                             >
-                                                                                <div class="h-14 w-full rounded-lg mb-2 bg-zinc-950 border border-zinc-900/60 relative flex items-center justify-center overflow-hidden text-center text-[9px] text-zinc-500 font-mono">
-                                                                                    {wp.type === 'video' ? (
-                                                                                        <video src={fileRawUrl} muted class="w-full h-full object-cover opacity-60" />
-                                                                                    ) : (
-                                                                                        <div style={{ backgroundImage: `url('${fileRawUrl}')` }} class="w-full h-full bg-cover bg-center opacity-60" />
-                                                                                    )}
-                                                                                    <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                                                        <span class="bg-zinc-950/90 px-1.5 py-0.5 rounded border border-zinc-800 text-[8px] uppercase tracking-wider text-zinc-400">{wp.type}</span>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <span class="text-xs font-medium text-zinc-300 block truncate">{wp.name}</span>
-                                                                                <span class="text-[9px] text-zinc-500 font-mono block mt-0.5 truncate">{wp.file}</span>
-                                                                                {isCurrent && (
-                                                                                    <span class="absolute top-2 right-2 text-[9px] bg-cyan-950 border border-cyan-800 text-cyan-400 font-medium px-1.5 py-0.5 rounded">Active</span>
-                                                                                )}
+                                                                                <span class="text-xs font-semibold text-zinc-200 block truncate w-full">{wp.name}</span>
+                                                                                <span class="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-950/60 border border-zinc-800 text-zinc-400 self-start">{wp.type}</span>
                                                                             </button>
                                                                         );
                                                                     })}
@@ -506,11 +536,14 @@
 
                                                         {hubTab === 'system' && (
                                                             <div class="space-y-4">
-                                                                <h3 class="text-sm font-bold text-white">System Architectures</h3>
-                                                                <div class="space-y-2 text-xs text-zinc-400">
-                                                                    <p>OS Name: orbitOS Desktop</p>
-                                                                    <p>Kernel Node: React Hooks Engine</p>
-                                                                    <p>Style Compiler: TailwindCSS CSS Layer v4</p>
+                                                                <div>
+                                                                    <h3 class="text-sm font-bold text-white">Environment Details</h3>
+                                                                    <p class="text-[11px] text-zinc-400 mt-0.5">System properties architecture profile.</p>
+                                                                </div>
+                                                                <div class="border border-zinc-800/60 rounded-xl overflow-hidden bg-zinc-900/10">
+                                                                    <div class="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/40 text-xs"><span class="text-zinc-500 font-medium">OS Name</span><span class="text-zinc-300 font-mono">orbitOS</span></div>
+                                                                    <div class="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/40 text-xs"><span class="text-zinc-500 font-medium">Framework Base</span><span class="text-zinc-300 font-mono">React 18.2.0</span></div>
+                                                                    <div class="flex items-center justify-between px-4 py-2.5 text-xs"><span class="text-zinc-500 font-medium">Style Engine</span><span class="text-zinc-300 font-mono">Tailwind CSS v4</span></div>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -518,11 +551,25 @@
                                                 </div>
                                             )}
 
-                                            {/* STORAGE EXPLORER */}
+                                            {/* STORAGE APP */}
                                             {activeWindow === 'files' && (
-                                                <div class="p-6">
-                                                    <h3 class="text-sm font-bold text-white mb-2">Storage File Layer</h3>
-                                                    <p class="text-xs text-zinc-400 font-mono">No physical volumes linked to client sandbox layer.</p>
+                                                <div class="p-6 space-y-4">
+                                                    <div>
+                                                        <h2 class="text-base font-bold text-white">Storage Volumes</h2>
+                                                        <p class="text-[11px] text-zinc-400 mt-0.5">File allocation clusters and structural file indexes.</p>
+                                                    </div>
+                                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                        <div class="p-4 bg-zinc-900/30 border border-zinc-800/40 rounded-xl flex gap-4 items-center">
+                                                            <div class="p-3 bg-zinc-950/60 rounded-xl text-zinc-400 border border-zinc-800"><StorageIcon /></div>
+                                                            <div class="flex-1 min-w-0">
+                                                                <div class="text-xs font-bold text-zinc-200">System (C:)</div>
+                                                                <div class="w-full bg-zinc-900 h-1.5 rounded-full mt-2 overflow-hidden border border-zinc-800/40">
+                                                                    <div class="bg-cyan-500 h-full w-[42%]" />
+                                                                </div>
+                                                                <div class="flex justify-between text-[10px] text-zinc-500 font-medium mt-1.5"><span>42% Allocated</span><span>128 GB Free</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -531,39 +578,6 @@
                             </div>
                         )}
                     </main>
-
-                    {/* --- THE BRAND NEW ADDED TASKBAR LAYER --- */}
-                    <footer class="absolute bottom-4 left-1/2 -translate-x-1/2 h-14 z-50 flex items-center gap-2 px-4 bg-zinc-950/40 border border-zinc-800/40 backdrop-blur-xl rounded-2xl shadow-2xl transition-all max-w-xl">
-                        {apps.map((app) => {
-                            const AppIcon = app.icon;
-                            const isRunning = activeWindow === app.id;
-                            const isCurrentlyVisible = isRunning && isVisible;
-
-                            return (
-                                <button
-                                    key={app.id}
-                                    onClick={() => handleAppClick(app.id)}
-                                    class={`w-10 h-10 rounded-xl flex items-center justify-center transition-all border relative cursor-pointer group
-                                        ${isCurrentlyVisible 
-                                            ? 'bg-zinc-800/60 border-zinc-700 text-white shadow-md' 
-                                            : isRunning 
-                                                ? 'bg-zinc-900/30 border-zinc-800/60 text-zinc-400' 
-                                                : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-200 hover:bg-white/5'
-                                        }`}
-                                    title={app.label}
-                                >
-                                    <div class="transition-transform group-hover:scale-105">
-                                        <AppIcon />
-                                    </div>
-
-                                    {/* Taskbar Active Indicators */}
-                                    {isRunning && (
-                                        <span class={`absolute bottom-1 w-1 h-1 rounded-full transition-all duration-300 ${isCurrentlyVisible ? 'bg-cyan-400 w-2' : 'bg-zinc-600'}`} />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </footer>
                 </div>
             );
         }
